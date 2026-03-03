@@ -3,24 +3,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void die_malloc_cleanup(char *line, char **lines, size_t count) {
+static void cleanup_and_die_malloc(char *line, char **lines, size_t count, FILE *in, FILE *out) {
     fprintf(stderr, "malloc failed\n");
     free(line);
     for (size_t i = 0; i < count; i++) free(lines[i]);
     free(lines);
+    if (in && in != stdin) fclose(in);
+    if (out && out != stdout) fclose(out);
     exit(1);
 }
 
 int main(int argc, char *argv[]) {
-    FILE *in = NULL;
-    FILE *out = NULL;
-    const char *in_name = NULL;
-    const char *out_name = NULL;
-
     if (argc > 3) {
         fprintf(stderr, "usage: reverse <input> <output>\n");
         exit(1);
     }
+
+    FILE *in = NULL;
+    FILE *out = NULL;
+    const char *in_name = NULL;
+    const char *out_name = NULL;
 
     if (argc == 1) {
         in = stdin;
@@ -36,6 +38,11 @@ int main(int argc, char *argv[]) {
     } else {
         in_name = argv[1];
         out_name = argv[2];
+
+        if (strcmp(in_name, out_name) == 0) {
+            fprintf(stderr, "Input and output file must differ\n");
+            exit(1);
+        }
 
         in = fopen(in_name, "r");
         if (in == NULL) {
@@ -64,9 +71,7 @@ int main(int argc, char *argv[]) {
             size_t newcap = (capacity == 0) ? 8 : capacity * 2;
             char **tmp = realloc(lines, newcap * sizeof(*lines));
             if (tmp == NULL) {
-                if (in != stdin) fclose(in);
-                if (out != stdout && out != NULL) fclose(out);
-                die_malloc_cleanup(line, lines, count);
+                cleanup_and_die_malloc(line, lines, count, in, out);
             }
             lines = tmp;
             capacity = newcap;
@@ -74,21 +79,26 @@ int main(int argc, char *argv[]) {
 
         char *copy = strdup(line);
         if (copy == NULL) {
-            if (in != stdin) fclose(in);
-            if (out != stdout && out != NULL) fclose(out);
-            die_malloc_cleanup(line, lines, count);
+            cleanup_and_die_malloc(line, lines, count, in, out);
         }
 
         lines[count++] = copy;
     }
 
     for (ssize_t i = (ssize_t)count - 1; i >= 0; i--) {
-        fprintf(out, "%s", lines[i]);
+        if (fprintf(out, "%s", lines[i]) < 0) {
+            free(line);
+            for (size_t k = 0; k < count; k++) free(lines[k]);
+            free(lines);
+            if (in && in != stdin) fclose(in);
+            if (out && out != stdout) fclose(out);
+            exit(1);
+        }
     }
 
     free(line);
-    if (in != stdin) fclose(in);
-    if (out != stdout && out != NULL) fclose(out);
+    if (in && in != stdin) fclose(in);
+    if (out && out != stdout) fclose(out);
     for (size_t i = 0; i < count; i++) free(lines[i]);
     free(lines);
 
