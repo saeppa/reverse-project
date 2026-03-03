@@ -1,3 +1,28 @@
+/*
+* reverse.c – Mini Project 1
+* Authors: Sara Eriksson & Sami Salonen
+*
+* Lähteet:
+*
+* 1. W. Richard Stevens & Stephen A. Rago (2013).
+*    "Advanced Programming in the UNIX Environment", 3rd Edition.
+*    Käytetty tiedostonkäsittelyyn, standard I/O -funktioihin
+*    (fopen, getline, fprintf) ja muistinhallintaan (malloc, realloc, free).
+*
+* 2. Remzi H. Arpaci-Dusseau & Andrea C. Arpaci-Dusseau (2018).
+*    "Operating Systems: Three Easy Pieces".
+*    Käytetty projektin taustakäsitteisiin ja työn vaiheittaiseen toteutukseen.
+*
+* 3. OSTEP Project Repository:
+*    https://github.com/remzi-arpacidusseau/ostep-projects
+*    Virallinen tehtävänanto ja projektikuvaus.
+*
+* 4. Linux man-sivut (man7.org):
+*    https://man7.org/linux/man-pages/man3/
+*    Käytetty funktioiden kutsumuotojen ja virheenkäsittelyn tarkistamiseen.
+*
+*/
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
