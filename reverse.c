@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
         lines[count++] = copy;
     }
 
-    for (size_t i = 0; i < count; i++) {
+    for (ssize_t i = (ssize_t)count - 1; i >= 0; i--) {
         fprintf(stdout, "%s", lines[i]);
     }
 
